@@ -3,7 +3,7 @@ const inquirer = require("inquirer");
 
 const fs = require('fs')
 
-const { generateMarkdown } = require('./utils/generateMarkdown')
+const generateMarkdown = require('./utils/generateMarkdown')
 
 // TODO: Create an array of questions for user input
 const questions = [
@@ -53,7 +53,7 @@ const questions = [
     {
         type: 'confirm',
         name: 'screenshot',
-        message: 'Include a screenshot?',
+        message: 'Include a screenshot? (will look for ./assets/images/sreenshot.png',
         default: true
     },
     // Usage
@@ -88,12 +88,12 @@ const questions = [
     {
         type: 'input',
         name: 'test',
-        message: 'a',
+        message: 'How can someone test your project?',
         validate: textInput => {
             if (textInput){
                 return true;
             } else {
-                console.log('Please enter your name!');
+                console.log('Please explain how to test the code!');
                 return false;
             }
         },
@@ -109,26 +109,20 @@ const questions = [
     {
         type: 'list',
         name: 'license',
-        message: 'a',
+        message: 'Please select a license',
         choices: ['MIT', 'GNU GPLv3', 'GNU AGPLv3', 'GNU LGPLv3', 'Apache 2.0', 'Unlicense', 'BSL 1.0', 'MPL 2.0'],
         when: ({confirmLicense}) => confirmLicense,
-        filter(answer) { // format answer to match
-            var formatted = answer.toLowerCase().replaceAll(" ","-"); // Apache 2.0 -> apache-2.0
-            if(formatted.substring(0,3)==='GNU'){
-                formatted= formatted.substring(4,formatted.length-2)+'-3.0';
-            }
-        }
     },
     // GitHub username
     {
         type: 'input',
-        name: 'github',
-        message: 'a',
+        name: 'username',
+        message: 'Please enter your GitHub username: ',
         validate: textInput => {
             if (textInput){
                 return true;
             } else {
-                console.log('Please enter your name!');
+                console.log('Please enter your username!');
                 return false;
             }
         },
@@ -137,12 +131,12 @@ const questions = [
     {
         type: 'input',
         name: 'email',
-        message: 'a',
+        message: 'Please enter your email address: ',
         validate: textInput => {
             if (textInput){
                 return true;
             } else {
-                console.log('Please enter your name!');
+                console.log('Please enter your email!');
                 return false;
             }
         },
@@ -150,48 +144,38 @@ const questions = [
 ];
 
 // TODO: Create a function to write README file
-function writeToFile(fileName, data) {}
+function writeToFile(data) {
+    return new Promise((resolve,reject) =>{
+        fs.writeFile('./README.md',data, err => {
+            if(err) {
+                reject(err);
+                return;
+            }
+            
+            resolve({
+                ok:true,
+                message: 'README created!'
+            })
+        })
+    })
+}
 
 // TODO: Create a function to initialize app
-function init() {}
+function init() {
+    inquirer.prompt(questions)
+        .then(answers =>{
+            return generateMarkdown(answers);
+        })
+        .then(markdown =>{
+            return writeToFile(markdown);
+        })
+        .then(writeToFileResponse =>{
+            console.log(writeToFileResponse);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
 
 // Function call to initialize app
 init(); // innit bruv, u wanna 'ave a go
-
-
-/*
-
-GIVEN a command-line application that accepts user input
-
-WHEN I am prompted for information about my application repository
-THEN a high-quality, professional README.md is generated with
-    the title of my project and sections entitled:
-        Description 
-        Table of Contents
-        Installation
-        Usage,
-        License,
-        Contributing 
-        Tests
-        Questions
-
-WHEN I enter my project title
-THEN this is displayed as the title of the README
-
-WHEN I enter a description, installation instructions, usage information, contribution guidelines, and test instructions
-THEN this information is added to the sections of the README entitled Description, Installation, Usage, Contributing, and Tests
-
-WHEN I choose a license for my application from a list of options
-THEN a badge for that license is added near the top of the README and a notice is added to the section of the README entitled License that explains which license the application is covered under
-
-WHEN I enter my GitHub username
-THEN this is added to the section of the README entitled Questions, with a link to my GitHub profile
-
-WHEN I enter my email address
-THEN this is added to the section of the README entitled Questions, with instructions on how to reach me with additional questions
-
-WHEN I click on the links in the Table of Contents
-THEN I am taken to the corresponding section of the README
-
-
-*/
