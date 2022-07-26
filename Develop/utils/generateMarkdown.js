@@ -53,8 +53,8 @@ ${data.description}
 
 - [Installation](#installation)
 - [Usage](#usage)
-${data.confirmLicense ? `- [License](#license) \n` : ``}
-- [Contributing](#How to Contribute)
+${data.confirmLicense ? `- [License](#license)` : ``}
+- [Contributing](#Contributing)
 - [Tests](#tests)
 - [Questions](#questions)
 
